@@ -1,6 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    android:layout_width="match_parent" android:layout_height="wrap_content">
+<LinearLayout
+    android:id="@+id/liner_id"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:weightSum="1"
+    android:orientation="horizontal"
 
+    >
+<ImageButton
+    android:id="@+id/start_music"
+    android:layout_width="50dp"
+    android:layout_height="50dp"
+    android:src="@drawable/music"
+    android:scaleType="centerCrop"
+    android:clickable="true"
+    android:layout_weight="0.3"
 
+    />
+
+    <TextView
+        android:id="@+id/music_name_id"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.7"
+        android:layout_marginLeft="@dimen/margin_left"
+        android:layout_marginTop="@dimen/margin_top"
+        />
+</LinearLayout>
+    <TextView
+        android:id="@+id/music_size_id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/liner_id"
+        android:layout_marginBottom="5dp"
+        android:textAlignment="textEnd"
+        />
+    <TextView
+        android:id="@+id/music_data_id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/music_size_id"
+        android:layout_marginBottom="5dp"
+        android:textAlignment="textEnd"
+        />
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="1dp"
+        android:layout_below="@+id/music_data_id"
+        android:background="@color/colorAccent"
+        />
 </RelativeLayout>

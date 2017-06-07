@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">MediaPlayer</string>
     <string name="audio_title">Music List</string>
+    <string name="Notification_id">101</string>
+    <string name="audio_playing">audio_playing</string>
+    <string name="audio_name">nasif</string>
+    <string name="ticker_text">ticker</string>
+
 </resources>
