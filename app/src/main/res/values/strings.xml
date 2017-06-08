@@ -5,5 +5,7 @@
     <string name="audio_playing">audio_playing</string>
     <string name="audio_name">nasif</string>
     <string name="ticker_text">ticker</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
 
 </resources>

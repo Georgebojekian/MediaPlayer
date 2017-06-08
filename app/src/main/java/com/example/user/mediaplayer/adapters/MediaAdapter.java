@@ -42,9 +42,7 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MyViewHolder
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    int position = getAdapterPosition();
-                    Audio audio = getItem(position);
-//                    String path = getItem(position).getData();
+                    Audio audio = getItem(getAdapterPosition());
                     if(onClickListener != null){
                         onClickListener.onClickItem(audio);
                     }else {

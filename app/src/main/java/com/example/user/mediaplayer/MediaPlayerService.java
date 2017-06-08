@@ -8,10 +8,12 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import com.example.user.mediaplayer.activities.MainActivity;
 
@@ -22,15 +24,17 @@ import java.io.IOException;
  * Created by User on 6/7/2017.
  */
 
-public class MediaPlayerService extends Service implements  MediaPlayer.OnPreparedListener,MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, MediaPlayer.OnSeekCompleteListener {
+public class MediaPlayerService extends Service implements  MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnSeekCompleteListener {
     String title;
-    MediaPlayer mMediaPlayer = new MediaPlayer();
+    String path ;
+    MediaPlayer mMediaPlayer  = new MediaPlayer() ;
+    private final IBinder mBinder = new LocalBinder();
     //Actions
     public static final String ACTION_START = "com.example.user.mediaplayer.action_play";
     public static final String ACTION_PAUSE = "com.example.user.mediaplayer.action_pause";
     public static final String ACTION_RESUME = "com.example.user.mediaplayer.action_resume";
-    public static final String ACTION_STOP = "com.example.user.mediaplayer.action_stop";
-    public static final String ACTION_MAIN = "com.example.user.mediaplayer.action_main";
+//    public static final String ACTION_STOP = "com.example.user.mediaplayer.action_stop";
+//    public static final String ACTION_MAIN = "com.example.user.mediaplayer.action_main";
 
     //NotificationID
     public static final int NOTIFICATION_ID = R.string.Notification_id;
@@ -42,14 +46,13 @@ public class MediaPlayerService extends Service implements  MediaPlayer.OnPrepar
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return mBinder;
     }
-
-
     @Override
-    public void onCompletion(MediaPlayer mp) {
-
+    public boolean onUnbind(Intent intent) {
+        return true;
     }
+
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
@@ -60,8 +63,16 @@ public class MediaPlayerService extends Service implements  MediaPlayer.OnPrepar
     public void onPrepared(MediaPlayer mp) {
         mp.start();
 
+        mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                 mMediaPlayer.reset();
+//                mMediaPlayer = null;
+                Toast.makeText(MediaPlayerService.this, "finished", Toast.LENGTH_SHORT).show();
+//                setUpNotification(intent,title);
+            }
+        });
     }
-
     @Override
     public void onSeekComplete(MediaPlayer mp) {
 
@@ -69,21 +80,29 @@ public class MediaPlayerService extends Service implements  MediaPlayer.OnPrepar
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+          path = intent.getStringExtra("path");
             if(intent.getAction().equals(MediaPlayerService.ACTION_START)) {
-                if( mMediaPlayer.isPlaying()){
+                   title = intent.getStringExtra("title");
+                if(mMediaPlayer != null || mMediaPlayer.isPlaying()){
                     mMediaPlayer.reset();
+//                    setUpNotification(intent, title);
+//                    mMediaPlayer = null;
                 }
-                    String path = intent.getStringExtra("path");
-                    title = intent.getStringExtra("title");
+//                else if(mMediaPlayer == null){
+//                    mMediaPlayer = new MediaPlayer();
+//                    initMediaPlayer(path);
+//                    setUpNotification(intent, title);
+//                }
+
                     initMediaPlayer(path);
                     setUpNotification(intent, title);
+
             }
             else if (intent.getAction().equals(MediaPlayerService.ACTION_PAUSE)){
-                mMediaPlayer.pause();
-                setUpNotification(intent,title);
+                pause(intent);
+
             }   else if (intent.getAction().equals(MediaPlayerService.ACTION_RESUME)){
-                mMediaPlayer.start();
-                setUpNotification(intent,title);
+                resume(intent);
             }
         return  START_STICKY;
     }
@@ -179,6 +198,19 @@ public class MediaPlayerService extends Service implements  MediaPlayer.OnPrepar
         mMediaPlayer.stop();
         mMediaPlayer.release();
         super.onDestroy();
+    }
+    public void resume(Intent intent){
+        mMediaPlayer.start();
+        setUpNotification(intent,title);
+    }
+    public void pause(Intent intent){
+        mMediaPlayer.pause();
+        setUpNotification(intent,title);
+    }
+    public class LocalBinder extends Binder {
+       public MediaPlayerService getService(){
+            return MediaPlayerService.this;
+        }
     }
 
 }

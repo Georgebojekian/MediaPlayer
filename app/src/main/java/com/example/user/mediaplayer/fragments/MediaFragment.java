@@ -29,7 +29,6 @@ import java.util.List;
 
 public class MediaFragment extends Fragment  {
     String TAG = MediaFragment.class.getName();
-    int position;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -37,8 +36,7 @@ public class MediaFragment extends Fragment  {
         RecyclerView recyclerView  = (RecyclerView)view.findViewById(R.id.music_list);
 
         //load musics from device
-        List<Audio> audioList = loadAudio();
-        MediaAdapter mediaAdapter = new MediaAdapter(getActivity(), audioList);
+        MediaAdapter mediaAdapter = new MediaAdapter(getActivity(), loadAudio());
 
         recyclerView.setAdapter(mediaAdapter);
         RecyclerView.LayoutManager layoutManager  = new LinearLayoutManager(getActivity());
