@@ -44,7 +44,7 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MyViewHolder
                 public void onClick(View v) {
                     Audio audio = getItem(getAdapterPosition());
                     if(onClickListener != null){
-                        onClickListener.onClickItem(audio);
+                        onClickListener.onClickItem(audio,playMusic);
                     }else {
                         Log.e(TAG,"No data in interface");
                     }
@@ -79,7 +79,7 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MyViewHolder
     }
 
   public interface  IOnClickListener{
-        void onClickItem(Audio  audio);
+        void onClickItem(Audio audio,ImageButton playMusic);
     }
 
 }

@@ -12,6 +12,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.widget.ImageButton;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -27,14 +28,15 @@ import java.io.IOException;
 public class MediaPlayerService extends Service implements  MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnSeekCompleteListener {
     String title;
     String path ;
+    Intent intent;
     MediaPlayer mMediaPlayer  = new MediaPlayer() ;
     private final IBinder mBinder = new LocalBinder();
+    ImageButton imageButton = MainActivity.getBackground();
     //Actions
     public static final String ACTION_START = "com.example.user.mediaplayer.action_play";
     public static final String ACTION_PAUSE = "com.example.user.mediaplayer.action_pause";
     public static final String ACTION_RESUME = "com.example.user.mediaplayer.action_resume";
-//    public static final String ACTION_STOP = "com.example.user.mediaplayer.action_stop";
-//    public static final String ACTION_MAIN = "com.example.user.mediaplayer.action_main";
+
 
     //NotificationID
     public static final int NOTIFICATION_ID = R.string.Notification_id;
@@ -69,7 +71,8 @@ public class MediaPlayerService extends Service implements  MediaPlayer.OnPrepar
                  mMediaPlayer.reset();
 //                mMediaPlayer = null;
                 Toast.makeText(MediaPlayerService.this, "finished", Toast.LENGTH_SHORT).show();
-//                setUpNotification(intent,title);
+                imageButton.setImageResource(android.R.drawable.ic_media_play);
+                setUpNotification(intent,title,imageButton);
             }
         });
     }
@@ -81,33 +84,32 @@ public class MediaPlayerService extends Service implements  MediaPlayer.OnPrepar
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
           path = intent.getStringExtra("path");
+        this.intent = intent;
+//         imageButton = intent.getParcelableExtra("mediaPlayerStatusBackground");
             if(intent.getAction().equals(MediaPlayerService.ACTION_START)) {
                    title = intent.getStringExtra("title");
                 if(mMediaPlayer != null || mMediaPlayer.isPlaying()){
                     mMediaPlayer.reset();
-//                    setUpNotification(intent, title);
-//                    mMediaPlayer = null;
+
                 }
-//                else if(mMediaPlayer == null){
-//                    mMediaPlayer = new MediaPlayer();
-//                    initMediaPlayer(path);
-//                    setUpNotification(intent, title);
-//                }
+
 
                     initMediaPlayer(path);
-                    setUpNotification(intent, title);
+                    setUpNotification(intent, title,imageButton);
 
             }
             else if (intent.getAction().equals(MediaPlayerService.ACTION_PAUSE)){
-                pause(intent);
+              mMediaPlayer.pause();
+                setUpNotification(intent, title,imageButton);
 
-            }   else if (intent.getAction().equals(MediaPlayerService.ACTION_RESUME)){
-                resume(intent);
+            }  else if (intent.getAction().equals(MediaPlayerService.ACTION_RESUME)){
+                mMediaPlayer.start();
+                setUpNotification(intent, title,imageButton);
             }
         return  START_STICKY;
     }
 
-    private void setUpNotification(Intent intent,String title) {
+    private void setUpNotification(Intent intent,String title,ImageButton imageButton ) {
         mNotificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         Intent intentNotif  = new Intent(this, MainActivity.class);
         intentNotif .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -130,18 +132,17 @@ public class MediaPlayerService extends Service implements  MediaPlayer.OnPrepar
 
             mBuilder = new NotificationCompat.Builder(this);
 
-            CharSequence ticker = getResources().getString(R.string.ticker_text);
-
             mBuilder.setSmallIcon(android.R.drawable.ic_media_pause)
                     .setAutoCancel(false)
                     .setOngoing(true)
                     .setContentIntent(pendIntent)
                     .setContent(mRemoteViews)
-                    .setTicker(ticker);
+                    .setTicker(title);
 
             // starting service with notification in foreground mode
             startForeground(NOTIFICATION_ID, mBuilder.build());
         }else if(intent.getAction().equals(ACTION_PAUSE)){
+            imageButton.setImageResource(android.R.drawable.ic_media_play);
             Intent playIntent = new Intent(this, MediaPlayerService.class);
             playIntent.setAction(ACTION_RESUME);
             PendingIntent pendingPlayIntent = PendingIntent.getService(this, 0, playIntent, 0);
@@ -152,15 +153,15 @@ public class MediaPlayerService extends Service implements  MediaPlayer.OnPrepar
             // update the title
             mRemoteViews.setTextViewText(R.id.notif_title_id, title);
 
-            CharSequence ticker = getResources().getString(R.string.ticker_text);
             mBuilder.setSmallIcon(android.R.drawable.ic_media_play)
                     .setAutoCancel(false)
                     .setOngoing(true)
                     .setContentIntent(pendIntent)
                     .setContent(mRemoteViews)
-                    .setTicker(ticker);
+                    .setTicker(title);
             startForeground(NOTIFICATION_ID, mBuilder.build());
-        }else{
+        }else if (intent.getAction().equals(ACTION_RESUME)){
+            imageButton.setImageResource(android.R.drawable.ic_media_pause);
             Intent resumeIntent = new Intent(this, MediaPlayerService.class);
             resumeIntent.setAction(ACTION_PAUSE);
             PendingIntent pendingResumeIntent = PendingIntent.getService(this, 0, resumeIntent, 0);
@@ -171,13 +172,12 @@ public class MediaPlayerService extends Service implements  MediaPlayer.OnPrepar
             // update the title
             mRemoteViews.setTextViewText(R.id.notif_title_id, title);
 
-            CharSequence ticker = getResources().getString(R.string.ticker_text);
             mBuilder.setSmallIcon(android.R.drawable.ic_media_pause)
                     .setAutoCancel(false)
                     .setOngoing(true)
                     .setContentIntent(pendIntent)
                     .setContent(mRemoteViews)
-                    .setTicker(ticker);
+                    .setTicker(title);
             startForeground(NOTIFICATION_ID, mBuilder.build());
         }
     }
@@ -199,13 +199,15 @@ public class MediaPlayerService extends Service implements  MediaPlayer.OnPrepar
         mMediaPlayer.release();
         super.onDestroy();
     }
-    public void resume(Intent intent){
+    public void resume(Intent intent ,ImageButton resumeButton){
+         imageButton = resumeButton;
         mMediaPlayer.start();
-        setUpNotification(intent,title);
+        setUpNotification(intent,title,resumeButton);
     }
-    public void pause(Intent intent){
+    public void pause(Intent intent, ImageButton pauseMusic){
+         imageButton = pauseMusic;
         mMediaPlayer.pause();
-        setUpNotification(intent,title);
+        setUpNotification(intent,title,pauseMusic);
     }
     public class LocalBinder extends Binder {
        public MediaPlayerService getService(){

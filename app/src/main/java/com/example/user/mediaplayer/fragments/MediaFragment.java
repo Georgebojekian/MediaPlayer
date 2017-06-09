@@ -43,7 +43,6 @@ public class MediaFragment extends Fragment  {
         recyclerView.setLayoutManager(layoutManager);
 
         return view;
-
     }
     private ArrayList<Audio> loadAudio() {
         ArrayList<Audio> fetchAudioList = new ArrayList<>();
